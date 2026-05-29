@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXUS — Mission Control Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;800&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #020508;
+    --panel: #060d15;
+    --panel2: #0a1520;
+    --border: rgba(0,200,255,0.12);
+    --cyan: #00C8FF;
+    --cyan2: #00FF9F;
+    --orange: #FF6B2B;
+    --red: #FF2D55;
+    --yellow: #FFD700;
+    --muted: #3a5a6a;
+    --text: #A8D8E8;
+    --glow: 0 0 20px rgba(0,200,255,0.3);
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Share Tech Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    overflow: hidden;
+    height: 100vh;
+  }
+
+  /* SCANLINES */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.08) 2px,
+      rgba(0,0,0,0.08) 4px
+    );
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  /* GRID */
+  .mission-control {
+    display: grid;
+    grid-template-columns: 260px 1fr 280px;
+    grid-template-rows: 56px 1fr 180px;
+    height: 100vh;
+    gap: 2px;
+    background: rgba(0,200,255,0.05);
+    padding: 2px;
+  }
+
+  /* ===== TOP BAR ===== */
+  .top-bar {
+    grid-column: 1 / -1;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 1.5rem;
+    gap: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .top-bar::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    animation: scan 4s linear infinite;
+  }
+
+  @keyframes scan {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(100%); }
+  }
+
+  .nexus-logo {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    font-size: 1.2rem;
+    color: var(--cyan);
+    text-shadow: var(--glow);
+    letter-spacing: 0.15em;
+  }
+
+  .nexus-logo span { color: var(--cyan2); }
+
+  .top-status {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+  }
+
+  .status-dot-sm {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--cyan2);
+    box-shadow: 0 0 8px var(--cyan2);
+    animation: blink 1.5s infinite;
+  }
+
+  .status-dot-sm.alert { background: var(--red); box-shadow: 0 0 8px var(--red); }
+
+  @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+  .top-clock {
+    margin-left: auto;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1rem;
+    color: var(--cyan);
+    letter-spacing: 0.1em;
+  }
+
+  .mission-time {
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  .alert-banner {
+    background: rgba(255,45,85,0.1);
+    border: 1px solid var(--red);
+    padding: 0.2rem 0.75rem;
+    font-size: 0.68rem;
+    color: var(--red);
+    letter-spacing: 0.08em;
+    animation: blink 1s infinite;
+    cursor: pointer;
+  }
+
+  /* ===== PANEL BASE ===== */
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .panel-header {
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(0,200,255,0.04);
+  }
+
+  .panel-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--cyan);
+  }
+
+  .panel-badge {
+    margin-left: auto;
+    font-size: 0.6rem;
+    padding: 0.1rem 0.4rem;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    color: var(--muted);
+  }
+
+  /* ===== LEFT: TELEMETRY ===== */
+  .telemetry { grid-row: 2 / 3; }
+
+  .telemetry-inner { padding: 0.75rem; display: flex; flex-direction: column; gap: 0.5rem; overflow-y: auto; flex: 1; }
+  .telemetry-inner::-webkit-scrollbar { width: 3px; }
+  .telemetry-inner::-webkit-scrollbar-thumb { background: var(--border); }
+
+  .telem-group {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 0.6rem 0.75rem;
+  }
+
+  .telem-label {
+    font-size: 0.6rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  .telem-value {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--cyan);
+    display: flex;
+    align-items: baseline;
+    gap: 0.3rem;
+  }
+
+  .telem-unit { font-size: 0.6rem; color: var(--muted); font-family: 'Share Tech Mono', monospace; }
+  .telem-value.warn { color: var(--orange); }
+  .telem-value.alert { color: var(--red); animation: blink 0.8s infinite; }
+  .telem-value.good { color: var(--cyan2); }
+
+  .telem-bar-wrap {
+    height: 4px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 2px;
+    margin-top: 0.4rem;
+    overflow: hidden;
+  }
+
+  .telem-bar {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.5s ease;
+  }
+
+  .telem-delta {
+    font-size: 0.6rem;
+    margin-top: 0.25rem;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* ===== CENTER: RADAR / MAP ===== */
+  .center-panel { grid-row: 2 / 3; }
+
+  .radar-view {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse at center, rgba(0,200,255,0.03) 0%, transparent 70%);
+  }
+
+  #radar-canvas { display: block; }
+
+  .orbit-info {
+    position: absolute;
+    bottom: 0.75rem;
+    left: 1rem;
+    right: 1rem;
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .orbit-chip {
+    background: rgba(0,200,255,0.08);
+    border: 1px solid var(--border);
+    padding: 0.3rem 0.6rem;
+    font-size: 0.65rem;
+    color: var(--text);
+    letter-spacing: 0.05em;
+  }
+
+  .orbit-chip strong { color: var(--cyan); }
+
+  /* ===== RIGHT: SYSTEMS ===== */
+  .systems-panel { grid-row: 2 / 3; }
+  .systems-inner { padding: 0.75rem; display: flex; flex-direction: column; gap: 0.5rem; overflow-y: auto; flex: 1; }
+  .systems-inner::-webkit-scrollbar { width: 3px; }
+  .systems-inner::-webkit-scrollbar-thumb { background: var(--border); }
+
+  .sys-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.45rem 0.6rem;
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  .sys-row:hover { border-color: var(--cyan); }
+
+  .sys-icon { font-size: 1rem; width: 20px; text-align: center; }
+  .sys-name { font-size: 0.72rem; flex: 1; color: var(--text); }
+  .sys-bar-wrap { width: 70px; }
+  .sys-bar-track { height: 3px; background: rgba(255,255,255,0.05); border-radius: 2px; overflow: hidden; }
+  .sys-bar-fill { height: 100%; border-radius: 2px; transition: width 0.4s ease; }
+  .sys-pct { font-size: 0.62rem; color: var(--muted); text-align: right; margin-top: 1px; }
+  .sys-status { font-size: 0.6rem; padding: 0.1rem 0.35rem; border-radius: 2px; white-space: nowrap; }
+  .sys-status.ok { background: rgba(0,255,159,0.12); color: var(--cyan2); }
+  .sys-status.warn { background: rgba(255,107,43,0.15); color: var(--orange); }
+  .sys-status.crit { background: rgba(255,45,85,0.15); color: var(--red); animation: blink 0.8s infinite; }
+
+  /* CREW */
+  .crew-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.4rem 0.6rem;
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    font-size: 0.72rem;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  .crew-row:hover { border-color: var(--cyan2); }
+
+  .crew-avatar {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    border: 1px solid var(--cyan);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    flex-shrink: 0;
+    background: var(--panel);
+  }
+
+  .crew-name { flex: 1; color: var(--text); }
+  .crew-role { font-size: 0.6rem; color: var(--muted); }
+  .crew-hr { font-size: 0.68rem; color: var(--cyan); font-family: 'Orbitron', sans-serif; }
+
+  /* ===== BOTTOM: LOG / COMMS ===== */
+  .bottom-left {
+    grid-column: 1 / 3;
+    grid-row: 3 / 4;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+  }
+
+  .log-panel, .comms-panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .log-inner { flex: 1; overflow-y: auto; padding: 0.5rem 0.75rem; font-size: 0.65rem; line-height: 1.8; }
+  .log-inner::-webkit-scrollbar { width: 3px; }
+  .log-inner::-webkit-scrollbar-thumb { background: var(--border); }
+
+  .log-line { display: flex; gap: 0.75rem; }
+  .log-time { color: var(--muted); flex-shrink: 0; }
+  .log-tag { flex-shrink: 0; padding: 0 0.3rem; font-size: 0.58rem; border-radius: 2px; }
+  .log-tag.info { background: rgba(0,200,255,0.12); color: var(--cyan); }
+  .log-tag.warn { background: rgba(255,107,43,0.15); color: var(--orange); }
+  .log-tag.err { background: rgba(255,45,85,0.15); color: var(--red); }
+  .log-tag.ok { background: rgba(0,255,159,0.12); color: var(--cyan2); }
+  .log-msg { color: var(--text); flex: 1; }
+
+  /* COMMS */
+  .comms-inner { flex: 1; overflow-y: auto; padding: 0.5rem 0.75rem; font-size: 0.65rem; }
+  .comms-inner::-webkit-scrollbar { width: 3px; }
+  .comms-inner::-webkit-scrollbar-thumb { background: var(--border); }
+
+  .comm-msg { margin-bottom: 0.4rem; display: flex; gap: 0.5rem; animation: fadeLog 0.4s ease; }
+  @keyframes fadeLog { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+
+  .comm-from { color: var(--cyan); flex-shrink: 0; width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .comm-text { color: var(--text); }
+
+  .comms-input-row {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-top: 1px solid var(--border);
+    background: rgba(0,200,255,0.02);
+  }
+
+  .comms-input {
+    flex: 1;
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.35rem 0.6rem;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.68rem;
+    outline: none;
+    border-radius: 2px;
+    transition: border-color 0.2s;
+  }
+
+  .comms-input:focus { border-color: var(--cyan); }
+  .comms-input::placeholder { color: var(--muted); }
+
+  .comms-send {
+    background: rgba(0,200,255,0.1);
+    border: 1px solid var(--cyan);
+    color: var(--cyan);
+    padding: 0.35rem 0.75rem;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.6rem;
+    cursor: pointer;
+    letter-spacing: 0.08em;
+    transition: background 0.2s;
+  }
+
+  .comms-send:hover { background: rgba(0,200,255,0.2); }
+
+  /* BOTTOM RIGHT: ACTIONS */
+  .bottom-right {
+    grid-column: 3;
+    grid-row: 3 / 4;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .actions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    flex: 1;
+  }
+
+  .action-btn {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.6rem 0.5rem;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.62rem;
+    cursor: pointer;
+    border-radius: 3px;
+    text-align: center;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+    line-height: 1.5;
+    letter-spacing: 0.05em;
+  }
+
+  .action-btn:hover { background: rgba(0,200,255,0.1); border-color: var(--cyan); color: var(--cyan); }
+  .action-btn.danger:hover { background: rgba(255,45,85,0.12); border-color: var(--red); color: var(--red); }
+  .action-btn .ab-icon { font-size: 1.1rem; display: block; margin-bottom: 0.2rem; }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 500;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--panel);
+    border: 1px solid var(--cyan);
+    padding: 2rem;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 0 40px rgba(0,200,255,0.2);
+  }
+
+  .modal h3 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.85rem;
+    color: var(--cyan);
+    margin-bottom: 1rem;
+    letter-spacing: 0.1em;
+  }
+
+  .modal p { font-size: 0.75rem; line-height: 1.7; margin-bottom: 1rem; color: var(--text); }
+
+  .modal-btns { display: flex; gap: 0.75rem; justify-content: flex-end; }
+
+  .modal-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.4rem 1rem;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.68rem;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  .modal-btn.confirm { border-color: var(--cyan); color: var(--cyan); }
+  .modal-btn.confirm:hover { background: rgba(0,200,255,0.1); }
+  .modal-btn:hover { border-color: var(--text); }
+</style>
+</head>
+<body>
+
+<div class="mission-control">
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="nexus-logo">NEXUS<span>-7</span></div>
+    <div class="top-status"><div class="status-dot-sm"></div> MISSION ACTIVE</div>
+    <div class="top-status"><div class="status-dot-sm"></div> ALL SYSTEMS NOMINAL</div>
+    <div class="alert-banner" onclick="openModal('SOLAR FLARE DETECTED','Increased solar wind activity detected at 14:32 UTC. Recommend activating radiation shields and entering communication blackout protocol for next 18 minutes.','ACTIVATE SHIELDS')">⚠ SOLAR ACTIVITY — ALERT</div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;margin-left:auto">
+      <div class="top-clock" id="clock">--:--:--</div>
+      <div class="mission-time" id="mission-day">MET: T+127:14:39</div>
+    </div>
+  </div>
+
+  <!-- LEFT: TELEMETRY -->
+  <div class="panel telemetry">
+    <div class="panel-header">
+      <div class="panel-title">Telemetry</div>
+      <div class="panel-badge">LIVE · 1Hz</div>
+    </div>
+    <div class="telemetry-inner">
+      <div class="telem-group">
+        <div class="telem-label">Orbital Altitude</div>
+        <div class="telem-value good" id="alt">408.2 <span class="telem-unit">km</span></div>
+        <div class="telem-bar-wrap"><div class="telem-bar" style="width:68%;background:var(--cyan2)"></div></div>
+        <div class="telem-delta"><span style="color:var(--cyan2)">↑ +0.3 km</span><span>ISS-similar orbit</span></div>
+      </div>
+      <div class="telem-group">
+        <div class="telem-label">Orbital Velocity</div>
+        <div class="telem-value" id="vel">27,580 <span class="telem-unit">km/h</span></div>
+        <div class="telem-bar-wrap"><div class="telem-bar" style="width:88%;background:var(--cyan)"></div></div>
+        <div class="telem-delta"><span>→ nominal</span><span>7.66 km/s</span></div>
+      </div>
+      <div class="telem-group">
+        <div class="telem-label">Hull Temperature</div>
+        <div class="telem-value warn" id="hull">247 <span class="telem-unit">°C (ext)</span></div>
+        <div class="telem-bar-wrap"><div class="telem-bar" style="width:72%;background:var(--orange)"></div></div>
+        <div class="telem-delta"><span style="color:var(--orange)">▲ +12°C / hr</span><span>watch</span></div>
+      </div>
+      <div class="telem-group">
+        <div class="telem-label">Cabin Pressure</div>
+        <div class="telem-value good">101.2 <span class="telem-unit">kPa</span></div>
+        <div class="telem-bar-wrap"><div class="telem-bar" style="width:95%;background:var(--cyan2)"></div></div>
+        <div class="telem-delta"><span style="color:var(--cyan2)">● stable</span><span>nominal</span></div>
+      </div>
+      <div class="telem-group">
+        <div class="telem-label">O₂ Partial Pressure</div>
+        <div class="telem-value good">21.3 <span class="telem-unit">kPa</span></div>
+        <div class="telem-bar-wrap"><div class="telem-bar" style="width:82%;background:var(--cyan2)"></div></div>
+        <div class="telem-delta"><span style="color:var(--cyan2)">● normal</span><span>target: 21.2</span></div>
+      </div>
+      <div class="telem-group">
+        <div class="telem-label">Propellant Remaining</div>
+        <div class="telem-value warn" id="prop">34 <span class="telem-unit">%</span></div>
+        <div class="telem-bar-wrap"><div class="telem-bar" style="width:34%;background:var(--orange)"></div></div>
+        <div class="telem-delta"><span style="color:var(--orange)">▼ low</span><span>resupply T−14d</span></div>
+      </div>
+      <div class="telem-group">
+        <div class="telem-label">Radiation Dose</div>
+        <div class="telem-value alert">4.2 <span class="telem-unit">mSv/day</span></div>
+        <div class="telem-bar-wrap"><div class="telem-bar" style="width:62%;background:var(--red)"></div></div>
+        <div class="telem-delta"><span style="color:var(--red)">⚡ elevated</span><span>solar event</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CENTER: RADAR -->
+  <div class="panel center-panel">
+    <div class="panel-header">
+      <div class="panel-title">Orbital Tracking — NEXUS-7 · LEO</div>
+      <div class="panel-badge" id="orbit-count">ORBIT #2,041</div>
+    </div>
+    <div class="radar-view">
+      <canvas id="radar-canvas"></canvas>
+      <div class="orbit-info">
+        <div class="orbit-chip">Next sunrise <strong id="sunrise">00:24</strong></div>
+        <div class="orbit-chip">Period <strong>92.7 min</strong></div>
+        <div class="orbit-chip">Inc <strong>51.6°</strong></div>
+        <div class="orbit-chip">Over <strong id="location">Pacific Ocean</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: SYSTEMS + CREW -->
+  <div class="panel systems-panel">
+    <div class="panel-header">
+      <div class="panel-title">Systems</div>
+      <div class="panel-badge">13 SUBSYSTEMS</div>
+    </div>
+    <div class="systems-inner">
+      <div class="sys-row" onclick="sysClick('Life Support','99%')">
+        <div class="sys-icon">🌬️</div>
+        <div><div class="sys-name">Life Support</div><div class="sys-pct">99%</div></div>
+        <div class="sys-bar-wrap"><div class="sys-bar-track"><div class="sys-bar-fill" style="width:99%;background:var(--cyan2)"></div></div></div>
+        <div class="sys-status ok">OK</div>
+      </div>
+      <div class="sys-row" onclick="sysClick('Power Grid','91%')">
+        <div class="sys-icon">⚡</div>
+        <div><div class="sys-name">Power Grid</div><div class="sys-pct">91%</div></div>
+        <div class="sys-bar-wrap"><div class="sys-bar-track"><div class="sys-bar-fill" style="width:91%;background:var(--cyan)"></div></div></div>
+        <div class="sys-status ok">OK</div>
+      </div>
+      <div class="sys-row" onclick="sysClick('Comms Array','88%')">
+        <div class="sys-icon">📡</div>
+        <div><div class="sys-name">Comms Array</div><div class="sys-pct">88%</div></div>
+        <div class="sys-bar-wrap"><div class="sys-bar-track"><div class="sys-bar-fill" style="width:88%;background:var(--cyan)"></div></div></div>
+        <div class="sys-status ok">OK</div>
+      </div>
+      <div class="sys-row" onclick="sysClick('Thermal Control','72%')">
+        <div class="sys-icon">🌡️</div>
+        <div><div class="sys-name">Thermal Control</div><div class="sys-pct">72%</div></div>
+        <div class="sys-bar-wrap"><div class="sys-bar-track"><div class="sys-bar-fill" style="width:72%;background:var(--orange)"></div></div></div>
+        <div class="sys-status warn">WARN</div>
+      </div>
+      <div class="sys-row" onclick="sysClick('Navigation','100%')">
+        <div class="sys-icon">🧭</div>
+        <div><div class="sys-name">Navigation</div><div class="sys-pct">100%</div></div>
+        <div class="sys-bar-wrap"><div class="sys-bar-track"><div class="sys-bar-fill" style="width:100%;background:var(--cyan2)"></div></div></div>
+        <div class="sys-status ok">OK</div>
+      </div>
+      <div class="sys-row" onclick="sysClick('Rad Shields','43%')">
+        <div class="sys-icon">🛡️</div>
+        <div><div class="sys-name">Rad Shields</div><div class="sys-pct">43%</div></div>
+        <div class="sys-bar-wrap"><div class="sys-bar-track"><div class="sys-bar-fill" style="width:43%;background:var(--red)"></div></div></div>
+        <div class="sys-status crit">CRIT</div>
+      </div>
+      <div class="sys-row" onclick="sysClick('Propulsion','34%')">
+        <div class="sys-icon">🚀</div>
+        <div><div class="sys-name">Propulsion</div><div class="sys-pct">34%</div></div>
+        <div class="sys-bar-wrap"><div class="sys-bar-track"><div class="sys-bar-fill" style="width:34%;background:var(--orange)"></div></div></div>
+        <div class="sys-status warn">LOW</div>
+      </div>
+
+      <div style="font-family:Orbitron;font-size:0.6rem;color:var(--cyan);letter-spacing:0.12em;padding:0.4rem 0;border-top:1px solid var(--border);margin-top:0.25rem">CREW — 6 ABOARD</div>
+
+      <div class="crew-row" onclick="openModal('CDR Elena Vasquez','Commander · Age 44 · Mission Day 127 · EVA Hrs: 18.5. Current status: Command module — monitoring solar event. Cumulative radiation: 312 mSv.','CREW REPORT')">
+        <div class="crew-avatar">EV</div>
+        <div class="crew-name">CDR Vasquez<div class="crew-role">Commander</div></div>
+        <div class="crew-hr">♥ 68</div>
+      </div>
+      <div class="crew-row" onclick="openModal('PLT Marcus Chen','Pilot · Age 38 · Currently in EVA preparation bay. Suit pressure nominal. EVA scheduled T+0:45.','CREW REPORT')">
+        <div class="crew-avatar">MC</div>
+        <div class="crew-name">PLT Chen<div class="crew-role">Pilot · EVA PREP</div></div>
+        <div class="crew-hr">♥ 82</div>
+      </div>
+      <div class="crew-row" onclick="openModal('MS1 Aisha Mbeki','Mission Specialist · Conducting microgravity crystal growth experiment in module B. Results promising — 94% purity achieved.','CREW REPORT')">
+        <div class="crew-avatar">AM</div>
+        <div class="crew-name">MS1 Mbeki<div class="crew-role">Specialist</div></div>
+        <div class="crew-hr">♥ 71</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM LEFT: LOG + COMMS -->
+  <div class="bottom-left">
+    <div class="log-panel">
+      <div class="panel-header">
+        <div class="panel-title">System Log</div>
+        <div class="panel-badge" id="log-count">87 EVENTS</div>
+      </div>
+      <div class="log-inner" id="log-inner">
+        <div class="log-line"><span class="log-time">14:27:01</span><span class="log-tag info">INFO</span><span class="log-msg">Orbit #2,041 commenced — periapsis 405.1km</span></div>
+        <div class="log-line"><span class="log-time">14:29:14</span><span class="log-tag warn">WARN</span><span class="log-msg">Thermal subsystem: radiator efficiency −8%</span></div>
+        <div class="log-line"><span class="log-time">14:30:55</span><span class="log-tag err">ERR</span><span class="log-msg">Rad shield segment 3B — calibration failure</span></div>
+        <div class="log-line"><span class="log-time">14:31:02</span><span class="log-tag info">INFO</span><span class="log-msg">Auto-switching to backup rad shield array</span></div>
+        <div class="log-line"><span class="log-time">14:32:18</span><span class="log-tag warn">WARN</span><span class="log-msg">Solar proton flux: 2.4×10⁴ p/cm²/s — elevated</span></div>
+        <div class="log-line"><span class="log-time">14:33:40</span><span class="log-tag ok">OK</span><span class="log-msg">EVA suit integrity check passed — PLT Chen</span></div>
+        <div class="log-line"><span class="log-time">14:35:07</span><span class="log-tag info">INFO</span><span class="log-msg">Crystal growth chamber: cycle 14 complete</span></div>
+      </div>
+    </div>
+
+    <div class="comms-panel">
+      <div class="panel-header">
+        <div class="panel-title">CAPCOM Communications</div>
+        <div class="panel-badge">ENCRYPTED · AES-256</div>
+      </div>
+      <div class="comms-inner" id="comms-inner">
+        <div class="comm-msg"><span class="comm-from">HOUSTON:</span><span class="comm-text">NEXUS-7, we copy your telemetry. Stand by on solar advisory.</span></div>
+        <div class="comm-msg"><span class="comm-from">CDR VASQUEZ:</span><span class="comm-text">Roger, Houston. Crew is secure. Monitoring rad levels.</span></div>
+        <div class="comm-msg"><span class="comm-from">HOUSTON:</span><span class="comm-text">Recommend activating supplemental shielding on habitat module. Over.</span></div>
+        <div class="comm-msg"><span class="comm-from">CDR VASQUEZ:</span><span class="comm-text">Copy. Activating now. Chen's EVA postponed 60 minutes.</span></div>
+        <div class="comm-msg"><span class="comm-from">HOUSTON:</span><span class="comm-text">Confirmed. Good call, Commander. Weather looking better post-flare.</span></div>
+      </div>
+      <div class="comms-input-row">
+        <input class="comms-input" id="comms-input" type="text" placeholder="NEXUS-7 to HOUSTON: transmit message..." onkeydown="if(event.key==='Enter')sendComm()">
+        <button class="comms-send" onclick="sendComm()">TX ↑</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM RIGHT: ACTIONS -->
+  <div class="bottom-right">
+    <div class="panel-header">
+      <div class="panel-title">Mission Controls</div>
+    </div>
+    <div class="actions-grid">
+      <button class="action-btn" onclick="openModal('Orbital Boost Maneuver','Initiating 14-second perigee burn at +0:12:00. Delta-V: +2.8 m/s. New altitude: 412 km. Propellant cost: ~1.8%.','CONFIRM BURN')">
+        <span class="ab-icon">🚀</span>ORBIT BOOST
+      </button>
+      <button class="action-btn" onclick="openModal('Deploy Science Package','Releasing SP-14 science payload via robotic arm. Duration: 8 minutes. Ensure EVA crew is clear of port side before proceeding.','DEPLOY')">
+        <span class="ab-icon">🛰️</span>DEPLOY PKG
+      </button>
+      <button class="action-btn" onclick="activateShields()">
+        <span class="ab-icon">🛡️</span>RAD SHIELDS
+      </button>
+      <button class="action-btn" onclick="openModal('EVA Authorization','Authorizing Extra-Vehicular Activity for PLT Chen and MS2 Okonkwo. Duration: 4h 30m. Primary objective: replace thermal radiator panel C4.','AUTHORIZE EVA')">
+        <span class="ab-icon">👨‍🚀</span>AUTH EVA
+      </button>
+      <button class="action-btn" onclick="openModal('Data Downlink','Initiating science data downlink to Goldstone DSN. 14.2 GB queued. Estimated duration: 8 minutes at 24 Mbps.','START DOWNLINK')">
+        <span class="ab-icon">📡</span>DOWNLINK
+      </button>
+      <button class="action-btn danger" onclick="openModal('⚠ EMERGENCY PROTOCOL','This will initiate full station lockdown, crew to emergency stations, and automatic distress beacon. Confirm only in genuine emergency.','CONFIRM EMERGENCY')">
+        <span class="ab-icon">🆘</span>EMERGENCY
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <h3 id="modal-title">CONFIRM ACTION</h3>
+    <p id="modal-body"></p>
+    <div class="modal-btns">
+      <button class="modal-btn" onclick="closeModal()">CANCEL</button>
+      <button class="modal-btn confirm" id="modal-confirm" onclick="confirmAction()">CONFIRM</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // CLOCK
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('clock').textContent =
+      now.toUTCString().slice(17,25) + ' UTC';
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  // TELEMETRY SIMULATION
+  function jitter(val, range) {
+    return (val + (Math.random() - 0.5) * range).toFixed(1);
+  }
+
+  function updateTelemetry() {
+    document.getElementById('alt').innerHTML = jitter(408.2, 0.3) + ' <span class="telem-unit">km</span>';
+    document.getElementById('vel').innerHTML = (27580 + Math.round((Math.random()-0.5)*20)).toLocaleString() + ' <span class="telem-unit">km/h</span>';
+  }
+  setInterval(updateTelemetry, 2000);
+
+  // RADAR / GLOBE
+  const canvas = document.getElementById('radar-canvas');
+  const ctx = canvas.getContext('2d');
+  let angle = 0;
+  const locations = ['Pacific Ocean','North Atlantic','Arctic Region','Siberia','Indian Ocean','East Africa','South America'];
+  let locIdx = 0;
+  let sunriseCount = 1464;
+
+  function resizeCanvas() {
+    const container = canvas.parentElement;
+    canvas.width = container.clientWidth;
+    canvas.height = container.clientHeight - 60;
+  }
+
+  resizeCanvas();
+  window.addEventListener('resize', () => { resizeCanvas(); });
+
+  function drawRadar() {
+    const w = canvas.width, h = canvas.height;
+    const cx = w / 2, cy = h / 2;
+    const r = Math.min(w, h) * 0.38;
+    ctx.clearRect(0, 0, w, h);
+
+    // Earth
+    const earthGrad = ctx.createRadialGradient(cx, cy, r*0.1, cx, cy, r);
+    earthGrad.addColorStop(0, '#0a2040');
+    earthGrad.addColorStop(0.5, '#062030');
+    earthGrad.addColorStop(1, '#031520');
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI*2);
+    ctx.fillStyle = earthGrad;
+    ctx.fill();
+
+    // Grid lines on earth
+    ctx.save();
+    ctx.clip();
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI*2);
+    ctx.strokeStyle = 'rgba(0,200,255,0.08)';
+    ctx.lineWidth = 0.5;
+    for (let i = -3; i <= 3; i++) {
+      ctx.beginPath();
+      ctx.moveTo(cx + i*(r/3), cy-r);
+      ctx.lineTo(cx + i*(r/3), cy+r);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(cx-r, cy + i*(r/3));
+      ctx.lineTo(cx+r, cy + i*(r/3));
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // Atmosphere glow
+    const atmGrad = ctx.createRadialGradient(cx, cy, r-2, cx, cy, r+18);
+    atmGrad.addColorStop(0, 'rgba(0,150,255,0.3)');
+    atmGrad.addColorStop(1, 'transparent');
+    ctx.beginPath();
+    ctx.arc(cx, cy, r+18, 0, Math.PI*2);
+    ctx.fillStyle = atmGrad;
+    ctx.fill();
+
+    // Orbit path
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, r*1.35, r*1.2, Math.PI*0.2, 0, Math.PI*2);
+    ctx.strokeStyle = 'rgba(0,200,255,0.2)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Spacecraft
+    const sx = cx + Math.cos(angle) * r * 1.35;
+    const sy = cy + Math.sin(angle) * r * 1.2;
+
+    // Spacecraft glow
+    const scGlow = ctx.createRadialGradient(sx, sy, 0, sx, sy, 18);
+    scGlow.addColorStop(0, 'rgba(0,255,159,0.5)');
+    scGlow.addColorStop(1, 'transparent');
+    ctx.fillStyle = scGlow;
+    ctx.beginPath();
+    ctx.arc(sx, sy, 18, 0, Math.PI*2);
+    ctx.fill();
+
+    // Trail
+    for (let i = 1; i <= 12; i++) {
+      const ta = angle - (i * 0.05);
+      const tx = cx + Math.cos(ta) * r * 1.35;
+      const ty = cy + Math.sin(ta) * r * 1.2;
+      ctx.beginPath();
+      ctx.arc(tx, ty, 1.5 - i*0.1, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(0,255,159,${0.4 - i*0.03})`;
+      ctx.fill();
+    }
+
+    // Spacecraft dot
+    ctx.beginPath();
+    ctx.arc(sx, sy, 4, 0, Math.PI*2);
+    ctx.fillStyle = '#00FF9F';
+    ctx.shadowColor = '#00FF9F';
+    ctx.shadowBlur = 12;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // Label
+    ctx.font = '8px "Share Tech Mono"';
+    ctx.fillStyle = 'rgba(0,255,159,0.9)';
+    ctx.fillText('NEXUS-7', sx + 6, sy - 6);
+
+    // Center label
+    ctx.font = 'bold 11px "Orbitron"';
+    ctx.fillStyle = 'rgba(0,200,255,0.4)';
+    ctx.textAlign = 'center';
+    ctx.fillText('EARTH', cx, cy + 5);
+    ctx.textAlign = 'left';
+
+    // Corner readouts
+    ctx.font = '9px "Share Tech Mono"';
+    ctx.fillStyle = 'rgba(0,200,255,0.5)';
+    ctx.fillText('LAT ' + (Math.sin(angle)*51.6).toFixed(2)+'°', 12, 20);
+    ctx.fillText('LNG ' + (((angle*180/Math.PI)%360).toFixed(2))+'°', 12, 33);
+    ctx.fillText('ALT 408.2 km', 12, 46);
+
+    angle += 0.004;
+    if (angle > Math.PI * 2) {
+      angle -= Math.PI * 2;
+      locIdx = (locIdx + 1) % locations.length;
+      document.getElementById('location').textContent = locations[locIdx];
+    }
+
+    // Countdown sunrise
+    let mins = Math.floor(sunriseCount / 60);
+    let secs = sunriseCount % 60;
+    document.getElementById('sunrise').textContent = (mins+'').padStart(2,'0') + ':' + (secs+'').padStart(2,'0');
+    sunriseCount = sunriseCount <= 0 ? 92*60 : sunriseCount - 1;
+
+    requestAnimationFrame(drawRadar);
+  }
+
+  drawRadar();
+
+  // LOG
+  const logMessages = [
+    ['info', 'Gyro calibration complete — all 3 axes nominal'],
+    ['ok', 'Water recycler output: 98.2% purity — cycle 441'],
+    ['warn', 'CO₂ scrubber canister B approaching end-of-life'],
+    ['info', 'Downlink window opens in 8 minutes over Goldstone'],
+    ['ok', 'Battery bank 3 fully charged — 100%'],
+    ['warn', 'Micro-meteoroid impact detected: 0.3mm — no damage'],
+    ['info', 'Attitude correction burn: 0.08 m/s — complete'],
+    ['err', 'Sensor 7B-alpha: intermittent signal loss — investigating'],
+    ['ok', 'Science package SP-14 deployment sequence loaded'],
+    ['info', 'Crew meal period T+00:30'],
+  ];
+  let logIdx = 0;
+  let logCount = 87;
+
+  setInterval(() => {
+    const [tag, msg] = logMessages[logIdx % logMessages.length];
+    const now = new Date();
+    const ts = now.toUTCString().slice(17,25);
+    const log = document.getElementById('log-inner');
+    const div = document.createElement('div');
+    div.className = 'log-line';
+    div.innerHTML = `<span class="log-time">${ts}</span><span class="log-tag ${tag}">${tag.toUpperCase()}</span><span class="log-msg">${msg}</span>`;
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+    logCount++;
+    document.getElementById('log-count').textContent = logCount + ' EVENTS';
+    logIdx++;
+  }, 5000);
+
+  // COMMS
+  function sendComm() {
+    const input = document.getElementById('comms-input');
+    const text = input.value.trim();
+    if (!text) return;
+    const comms = document.getElementById('comms-inner');
+    const div = document.createElement('div');
+    div.className = 'comm-msg';
+    div.innerHTML = `<span class="comm-from">CDR VASQUEZ:</span><span class="comm-text">${text}</span>`;
+    comms.appendChild(div);
+    comms.scrollTop = comms.scrollHeight;
+    input.value = '';
+
+    const replies = [
+      'Copy that, NEXUS-7. Message received loud and clear.',
+      'Acknowledged. Passing to Flight Director.',
+      'Roger. Stand by for updated procedures.',
+      'Confirmed. Great work up there, crew.',
+      'Copy. Weather window nominal for next 4 hours.',
+    ];
+    setTimeout(() => {
+      const div2 = document.createElement('div');
+      div2.className = 'comm-msg';
+      div2.innerHTML = `<span class="comm-from">HOUSTON:</span><span class="comm-text">${replies[Math.floor(Math.random()*replies.length)]}</span>`;
+      comms.appendChild(div2);
+      comms.scrollTop = comms.scrollHeight;
+    }, 1800);
+  }
+
+  // MODAL
+  let currentAction = '';
+  function openModal(title, body, action) {
+    document.getElementById('modal-title').textContent = title;
+    document.getElementById('modal-body').textContent = body;
+    document.getElementById('modal-confirm').textContent = action;
+    currentAction = action;
+    document.getElementById('modal-overlay').classList.add('open');
+  }
+
+  function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+
+  function confirmAction() {
+    closeModal();
+    const log = document.getElementById('log-inner');
+    const now = new Date();
+    const ts = now.toUTCString().slice(17,25);
+    const div = document.createElement('div');
+    div.className = 'log-line';
+    div.innerHTML = `<span class="log-time">${ts}</span><span class="log-tag ok">OK</span><span class="log-msg">Action confirmed: ${currentAction}</span>`;
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function sysClick(name, val) {
+    openModal(`System: ${name}`, `Current operational capacity: ${val}. Last diagnostic: nominal. No maintenance actions pending. Click confirm to run a full subsystem diagnostic cycle.`, 'RUN DIAGNOSTIC');
+  }
+
+  function activateShields() {
+    openModal('Activate Radiation Shields', 'Supplemental radiation shielding will be activated on habitat and science modules. This will reduce internal dosage by ~40%. Power draw: +2.1 kW.', 'ACTIVATE');
+  }
+
+  // Close modal on overlay click
+  document.getElementById('modal-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('modal-overlay')) closeModal();
+  });
+</script>
+</body>
+</html>

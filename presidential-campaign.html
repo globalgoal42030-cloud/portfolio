@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marcus J. Rivera — For President 2028</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #C8102E;
+    --navy: #0A1628;
+    --gold: #D4A017;
+    --cream: #F5F0E8;
+    --white: #FFFFFF;
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Source Sans 3', sans-serif;
+    background: var(--navy);
+    color: var(--white);
+    overflow-x: hidden;
+  }
+
+  /* STARS BACKGROUND */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 80% 10%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 50% 60%, rgba(255,255,255,0.2) 0%, transparent 100%),
+      radial-gradient(1px 1px at 10% 80%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 90% 70%, rgba(255,255,255,0.25) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 4rem;
+    background: rgba(10,22,40,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 2px solid var(--gold);
+  }
+
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    letter-spacing: 0.1em;
+    color: var(--gold);
+  }
+
+  .nav-logo span { color: var(--red); }
+
+  nav ul {
+    list-style: none;
+    display: flex;
+    gap: 2.5rem;
+  }
+
+  nav a {
+    font-family: 'Source Sans 3', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--cream);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  nav a:hover { color: var(--gold); }
+
+  .nav-donate {
+    background: var(--red);
+    color: var(--white) !important;
+    padding: 0.5rem 1.5rem;
+    border-radius: 2px;
+    transition: background 0.2s !important;
+  }
+
+  .nav-donate:hover { background: #a50d24 !important; color: var(--white) !important; }
+
+  /* HERO */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 8rem 4rem 4rem;
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(135deg, rgba(200,16,46,0.15) 0%, transparent 50%),
+      linear-gradient(to right, rgba(10,22,40,0.95) 45%, transparent 100%);
+    z-index: 1;
+  }
+
+  .hero-stripes {
+    position: absolute;
+    right: 0; top: 0; bottom: 0;
+    width: 55%;
+    background: repeating-linear-gradient(
+      0deg,
+      var(--red) 0px,
+      var(--red) 40px,
+      var(--white) 40px,
+      var(--white) 80px
+    );
+    opacity: 0.07;
+    z-index: 0;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 700px;
+  }
+
+  .hero-eyebrow {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.95rem;
+    letter-spacing: 0.4em;
+    color: var(--gold);
+    margin-bottom: 1rem;
+    animation: fadeUp 0.8s ease both;
+  }
+
+  .hero-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(4rem, 10vw, 9rem);
+    line-height: 0.9;
+    color: var(--white);
+    animation: fadeUp 0.8s 0.15s ease both;
+  }
+
+  .hero-name .accent { color: var(--red); }
+
+  .hero-tagline {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+    font-style: italic;
+    color: var(--cream);
+    margin: 1.5rem 0 2.5rem;
+    animation: fadeUp 0.8s 0.3s ease both;
+    opacity: 0.9;
+  }
+
+  .hero-year {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(5rem, 15vw, 14rem);
+    color: var(--white);
+    opacity: 0.04;
+    position: absolute;
+    bottom: 2rem;
+    right: 2rem;
+    line-height: 1;
+    z-index: 1;
+    pointer-events: none;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-btns {
+    display: flex;
+    gap: 1rem;
+    animation: fadeUp 0.8s 0.45s ease both;
+  }
+
+  .btn-primary {
+    background: var(--red);
+    color: var(--white);
+    padding: 1rem 2.5rem;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.12em;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: transform 0.2s, box-shadow 0.2s;
+    clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+  }
+
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(200,16,46,0.4); }
+
+  .btn-secondary {
+    border: 2px solid var(--gold);
+    color: var(--gold);
+    padding: 1rem 2.5rem;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.12em;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .btn-secondary:hover { background: var(--gold); color: var(--navy); }
+
+  /* STATS BAR */
+  .stats-bar {
+    background: var(--red);
+    padding: 1.5rem 4rem;
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 1rem;
+    position: relative;
+    z-index: 2;
+  }
+
+  .stat-item { text-align: center; }
+
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.5rem;
+    color: var(--white);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.7);
+  }
+
+  /* SECTION SHARED */
+  section {
+    padding: 6rem 4rem;
+    position: relative;
+    z-index: 2;
+  }
+
+  .section-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.4em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.5rem, 5vw, 4.5rem);
+    line-height: 1;
+    color: var(--white);
+    margin-bottom: 2rem;
+  }
+
+  /* ISSUES */
+  .issues { background: rgba(255,255,255,0.02); }
+
+  .issues-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5px;
+    margin-top: 3rem;
+    background: var(--gold);
+    border: 1.5px solid var(--gold);
+  }
+
+  .issue-card {
+    background: var(--navy);
+    padding: 2.5rem 2rem;
+    cursor: pointer;
+    transition: background 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .issue-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--red);
+    transform: scaleY(0);
+    transition: transform 0.3s;
+    transform-origin: bottom;
+  }
+
+  .issue-card:hover { background: rgba(200,16,46,0.08); }
+  .issue-card:hover::before { transform: scaleY(1); }
+
+  .issue-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  .issue-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 0.75rem;
+  }
+
+  .issue-text {
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: rgba(255,255,255,0.6);
+  }
+
+  /* ABOUT */
+  .about-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6rem;
+    align-items: center;
+  }
+
+  .about-photo-frame {
+    position: relative;
+  }
+
+  .about-photo-placeholder {
+    width: 100%;
+    aspect-ratio: 3/4;
+    background: linear-gradient(135deg, #1a2d4a, #0f1e35);
+    border: 2px solid var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .about-photo-placeholder::after {
+    content: 'M';
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 12rem;
+    color: rgba(212,160,23,0.15);
+  }
+
+  .about-frame-accent {
+    position: absolute;
+    bottom: -1.5rem;
+    right: -1.5rem;
+    width: 60%;
+    height: 60%;
+    border: 2px solid var(--red);
+    z-index: -1;
+  }
+
+  .about-quote {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-style: italic;
+    line-height: 1.6;
+    color: var(--cream);
+    border-left: 3px solid var(--gold);
+    padding-left: 1.5rem;
+    margin: 2rem 0;
+  }
+
+  .about-body {
+    font-size: 1rem;
+    line-height: 1.85;
+    color: rgba(255,255,255,0.65);
+  }
+
+  /* PLEDGE / DONATE */
+  .pledge {
+    background: var(--red);
+    text-align: center;
+    padding: 5rem 4rem;
+  }
+
+  .pledge-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3rem, 7vw, 6rem);
+    line-height: 1;
+    margin-bottom: 1rem;
+  }
+
+  .pledge-sub {
+    font-size: 1.1rem;
+    opacity: 0.85;
+    max-width: 500px;
+    margin: 0 auto 2.5rem;
+  }
+
+  .donate-amounts {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+  }
+
+  .amt-btn {
+    border: 2px solid rgba(255,255,255,0.5);
+    background: transparent;
+    color: var(--white);
+    padding: 0.75rem 1.5rem;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.2rem;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+  }
+
+  .amt-btn:hover, .amt-btn.active {
+    background: var(--white);
+    color: var(--red);
+    border-color: var(--white);
+  }
+
+  .donate-form {
+    display: flex;
+    max-width: 420px;
+    margin: 0 auto;
+    gap: 0;
+  }
+
+  .donate-input {
+    flex: 1;
+    padding: 0.85rem 1rem;
+    border: 2px solid var(--white);
+    background: transparent;
+    color: var(--white);
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 1rem;
+    outline: none;
+  }
+
+  .donate-input::placeholder { color: rgba(255,255,255,0.5); }
+
+  .donate-submit {
+    background: var(--navy);
+    color: var(--white);
+    border: 2px solid var(--white);
+    border-left: none;
+    padding: 0.85rem 1.5rem;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .donate-submit:hover { background: var(--gold); border-color: var(--gold); }
+
+  /* EVENTS */
+  .events-list { margin-top: 3rem; }
+
+  .event-item {
+    display: grid;
+    grid-template-columns: 80px 1fr auto;
+    gap: 2rem;
+    align-items: center;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    transition: border-color 0.2s;
+  }
+
+  .event-item:hover { border-bottom-color: var(--gold); }
+
+  .event-date {
+    text-align: center;
+    background: rgba(212,160,23,0.1);
+    border: 1px solid var(--gold);
+    padding: 0.5rem;
+  }
+
+  .event-month {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    color: var(--gold);
+  }
+
+  .event-day {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    line-height: 1;
+    color: var(--white);
+  }
+
+  .event-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 0.25rem;
+  }
+
+  .event-loc {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.5);
+  }
+
+  .event-rsvp {
+    background: transparent;
+    border: 1px solid var(--red);
+    color: var(--red);
+    padding: 0.5rem 1.2rem;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.9rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .event-rsvp:hover { background: var(--red); color: var(--white); }
+
+  /* FOOTER */
+  footer {
+    background: rgba(0,0,0,0.5);
+    border-top: 2px solid var(--gold);
+    padding: 3rem 4rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    position: relative;
+    z-index: 2;
+  }
+
+  .footer-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    color: var(--gold);
+  }
+
+  .footer-logo span { color: var(--red); }
+
+  .footer-copy {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.35);
+    text-align: center;
+  }
+
+  .footer-social {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .social-btn {
+    width: 36px; height: 36px;
+    border: 1px solid rgba(255,255,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.5);
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+    text-decoration: none;
+  }
+
+  .social-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* MOBILE */
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.5rem; }
+    nav ul { display: none; }
+    section { padding: 4rem 1.5rem; }
+    .hero { padding: 7rem 1.5rem 4rem; }
+    .stats-bar { padding: 1.5rem; }
+    .about-inner { grid-template-columns: 1fr; gap: 2rem; }
+    .pledge { padding: 4rem 1.5rem; }
+    footer { padding: 2rem 1.5rem; flex-direction: column; text-align: center; }
+    .event-item { grid-template-columns: 60px 1fr; }
+    .event-rsvp { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Rivera<span>2028</span></div>
+  <ul>
+    <li><a href="#issues">Issues</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#events">Events</a></li>
+    <li><a href="#pledge" class="nav-donate">Donate</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-bg"></div>
+  <div class="hero-stripes"></div>
+  <div class="hero-content">
+    <p class="hero-eyebrow">★ &nbsp; United States Presidential Candidate 2028 &nbsp; ★</p>
+    <h1 class="hero-name">Marcus J.<br><span class="accent">Rivera</span></h1>
+    <p class="hero-tagline">"A nation that lifts every voice, leaves no one behind."</p>
+    <div class="hero-btns">
+      <a href="#issues" class="btn-primary">Our Platform</a>
+      <a href="#pledge" class="btn-secondary">Donate Today</a>
+    </div>
+  </div>
+  <div class="hero-year">2028</div>
+</section>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-num">1.2M</div>
+    <div class="stat-label">Volunteers Nationwide</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">48</div>
+    <div class="stat-label">States Campaigning</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">$84M</div>
+    <div class="stat-label">Raised from Small Donors</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">63%</div>
+    <div class="stat-label">Favorable Rating</div>
+  </div>
+</div>
+
+<!-- ISSUES -->
+<section class="issues" id="issues">
+  <p class="section-label reveal">★ &nbsp; The Platform</p>
+  <h2 class="section-title reveal">Fighting for What<br>Matters Most</h2>
+  <div class="issues-grid">
+    <div class="issue-card reveal">
+      <span class="issue-icon">🏥</span>
+      <div class="issue-title">Universal Healthcare</div>
+      <p class="issue-text">Quality healthcare is a right, not a privilege. We'll build a public option accessible to every American, drive down prescription costs, and ensure mental health parity across all plans.</p>
+    </div>
+    <div class="issue-card reveal">
+      <span class="issue-icon">🌱</span>
+      <div class="issue-title">Climate & Clean Energy</div>
+      <p class="issue-text">Invest $2 trillion in renewable energy infrastructure, create 5 million green jobs, and rejoin every international climate accord while holding corporations accountable.</p>
+    </div>
+    <div class="issue-card reveal">
+      <span class="issue-icon">🎓</span>
+      <div class="issue-title">Education for All</div>
+      <p class="issue-text">Free community college, expanded Pell Grants, student loan reform, and fully funded public schools K–12. A world-class education starts in every zip code.</p>
+    </div>
+    <div class="issue-card reveal">
+      <span class="issue-icon">⚖️</span>
+      <div class="issue-title">Criminal Justice Reform</div>
+      <p class="issue-text">End mass incarceration, abolish mandatory minimums, invest in rehabilitation, and build trust between communities and the officers who serve them.</p>
+    </div>
+    <div class="issue-card reveal">
+      <span class="issue-icon">🏠</span>
+      <div class="issue-title">Affordable Housing</div>
+      <p class="issue-text">Build 3 million new affordable units, pass renter protections, fund first-time homebuyer programs, and end the housing crisis plaguing our cities.</p>
+    </div>
+    <div class="issue-card reveal">
+      <span class="issue-icon">🔒</span>
+      <div class="issue-title">Gun Safety</div>
+      <p class="issue-text">Universal background checks, red-flag laws, assault weapon restrictions, and a buyback program — because freedom includes the freedom to feel safe.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-inner">
+    <div class="about-photo-frame reveal">
+      <div class="about-photo-placeholder"></div>
+      <div class="about-frame-accent"></div>
+    </div>
+    <div class="about-text">
+      <p class="section-label reveal">★ &nbsp; The Candidate</p>
+      <h2 class="section-title reveal">Born to Serve,<br>Built to Lead</h2>
+      <blockquote class="about-quote reveal">"I grew up in a family that worked three jobs and still struggled to make rent. I know what America is really asking for."</blockquote>
+      <p class="about-body reveal">Marcus J. Rivera was born in San Antonio, Texas to working-class parents. A Yale Law graduate and former public defender, he served two terms as Mayor of Austin — turning it into a national model for progressive urban policy — before winning his Senate seat in 2022 with the largest margin in state history.<br><br>He is the husband of Dr. Elena Rivera and father of three. He coaches Little League on weekends. He believes democracy works best when everyone participates.</p>
+    </div>
+  </div>
+</section>
+
+<!-- EVENTS -->
+<section id="events">
+  <p class="section-label reveal">★ &nbsp; On the Trail</p>
+  <h2 class="section-title reveal">Upcoming Events</h2>
+  <div class="events-list">
+    <div class="event-item reveal">
+      <div class="event-date"><div class="event-month">JAN</div><div class="event-day">14</div></div>
+      <div><div class="event-name">Town Hall — Des Moines, Iowa</div><div class="event-loc">📍 Community Center · 6:00 PM CST</div></div>
+      <button class="event-rsvp">RSVP →</button>
+    </div>
+    <div class="event-item reveal">
+      <div class="event-date"><div class="event-month">JAN</div><div class="event-day">19</div></div>
+      <div><div class="event-name">Grassroots Rally — Manchester, NH</div><div class="event-loc">📍 Verizon Arena · 7:00 PM EST</div></div>
+      <button class="event-rsvp">RSVP →</button>
+    </div>
+    <div class="event-item reveal">
+      <div class="event-date"><div class="event-month">FEB</div><div class="event-day">03</div></div>
+      <div><div class="event-name">Economic Forum — Detroit, Michigan</div><div class="event-loc">📍 Renaissance Center · 2:00 PM EST</div></div>
+      <button class="event-rsvp">RSVP →</button>
+    </div>
+    <div class="event-item reveal">
+      <div class="event-date"><div class="event-month">FEB</div><div class="event-day">17</div></div>
+      <div><div class="event-name">Climate Summit — Portland, Oregon</div><div class="event-loc">📍 Oregon Convention Ctr · 10:00 AM PST</div></div>
+      <button class="event-rsvp">RSVP →</button>
+    </div>
+  </div>
+</section>
+
+<!-- DONATE -->
+<section class="pledge" id="pledge">
+  <h2 class="pledge-title">Power This<br>Movement</h2>
+  <p class="pledge-sub">Every dollar from everyday Americans proves democracy can't be bought. Join 1.2 million donors.</p>
+  <div class="donate-amounts">
+    <button class="amt-btn" onclick="setAmt(this,'25')">$25</button>
+    <button class="amt-btn active" onclick="setAmt(this,'50')">$50</button>
+    <button class="amt-btn" onclick="setAmt(this,'100')">$100</button>
+    <button class="amt-btn" onclick="setAmt(this,'250')">$250</button>
+  </div>
+  <div class="donate-form">
+    <input class="donate-input" id="donateAmt" type="number" placeholder="Custom amount..." value="50">
+    <button class="donate-submit" onclick="donate()">DONATE NOW</button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Rivera<span>2028</span></div>
+  <div class="footer-copy">Paid for by Rivera for America · FEC ID: C00988765 · © 2028 All Rights Reserved<br>Not authorized by any candidate or candidate's committee.</div>
+  <div class="footer-social">
+    <a class="social-btn" href="#">𝕏</a>
+    <a class="social-btn" href="#">f</a>
+    <a class="social-btn" href="#">in</a>
+    <a class="social-btn" href="#">▶</a>
+  </div>
+</footer>
+
+<script>
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 80);
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  reveals.forEach(el => observer.observe(el));
+
+  // Donate amount
+  function setAmt(btn, val) {
+    document.querySelectorAll('.amt-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('donateAmt').value = val;
+  }
+
+  function donate() {
+    const amt = document.getElementById('donateAmt').value;
+    if (!amt || amt < 1) { alert('Please enter a valid amount.'); return; }
+    alert(`Thank you! Redirecting to secure payment for $${amt}...`);
+  }
+
+  // Nav scroll effect
+  window.addEventListener('scroll', () => {
+    const nav = document.querySelector('nav');
+    nav.style.boxShadow = window.scrollY > 50 ? '0 4px 30px rgba(0,0,0,0.5)' : 'none';
+  });
+</script>
+</body>
+</html>
