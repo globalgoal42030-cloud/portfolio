@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlowDB — Distributed Time-Series Database</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a0a0a; --surface: #111; --border: rgba(255,255,255,0.08);
+    --text: #f0ede8; --muted: rgba(240,237,232,0.45); --accent: #e8ff47;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Mono', monospace; font-size: 14px; line-height: 1.6; }
+  nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 24px 48px; border-bottom: 1px solid var(--border);
+    background: rgba(10,10,10,0.95); position: sticky; top: 0; z-index: 100;
+  }
+  .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 18px; color: var(--accent); text-decoration: none; }
+  .back { color: var(--muted); text-decoration: none; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; transition: color 0.2s; }
+  .back:hover { color: var(--accent); }
+  .hero { padding: 80px 48px; border-bottom: 1px solid var(--border); }
+  .tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(232,255,71,0.08); border: 1px solid rgba(232,255,71,0.2);
+    color: var(--accent); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 6px 14px; border-radius: 2px; margin-bottom: 24px;
+  }
+  h1 { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(48px, 8vw, 96px); letter-spacing: -3px; line-height: 0.95; margin-bottom: 32px; }
+  h1 span { color: var(--accent); }
+  .subtitle { color: var(--muted); font-size: 14px; max-width: 600px; line-height: 1.9; margin-bottom: 40px; }
+  .stats { display: flex; gap: 48px; flex-wrap: wrap; }
+  .stat-num { font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800; color: var(--text); display: block; line-height: 1; }
+  .stat-num span { color: var(--accent); }
+  .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 4px; }
+  .section { padding: 64px 48px; border-bottom: 1px solid var(--border); }
+  .section-label { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; display: flex; align-items: center; gap: 12px; }
+  .section-label::before { content: ''; width: 24px; height: 1px; background: var(--accent); }
+  h2 { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(28px, 4vw, 48px); letter-spacing: -1.5px; margin-bottom: 40px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); margin-top: 32px; }
+  .card { background: var(--bg); padding: 32px; transition: background 0.2s; }
+  .card:hover { background: var(--surface); }
+  .card-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+  .card-desc { font-size: 12px; color: var(--muted); line-height: 1.7; }
+  .tech-list { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 32px; }
+  .tech-tag { font-size: 11px; padding: 6px 14px; background: rgba(232,255,71,0.06); border: 1px solid rgba(232,255,71,0.15); color: var(--accent); border-radius: 2px; }
+  .code-block { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 24px; font-size: 12px; color: var(--muted); overflow-x: auto; margin-top: 24px; line-height: 1.8; }
+  .code-block .kw { color: var(--accent); } .code-block .str { color: #7dd3fc; } .code-block .cmt { color: rgba(240,237,232,0.25); }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 28px; font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.05em; text-decoration: none; border-radius: 2px; transition: all 0.2s; border: none; cursor: pointer; }
+  .btn-primary { background: var(--accent); color: #000; }
+  .btn-primary:hover { background: #fff; transform: translateY(-2px); }
+  .btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .btn-ghost:hover { border-color: var(--text); transform: translateY(-2px); }
+  .btns { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 40px; }
+  footer { padding: 24px 48px; font-size: 11px; color: var(--muted); border-top: 1px solid var(--border); display: flex; justify-content: space-between; }
+  @media (max-width: 768px) { nav, .hero, .section { padding-left: 24px; padding-right: 24px; } .grid-3 { grid-template-columns: 1fr; } .stats { gap: 24px; } footer { flex-direction: column; gap: 8px; } }
+</style>
+</head>
+<body>
+<nav>
+  <a href="portfolio.html" class="logo">FlowDB</a>
+  <a href="portfolio.html" class="back">← Back to Portfolio</a>
+</nav>
+
+<div class="hero">
+  <div class="tag">Open Source · Backend · Go</div>
+  <h1>Flow<span>DB</span></h1>
+  <p class="subtitle">A distributed time-series database engine written in Go, optimized for high-frequency financial tick data. Handles 2M+ writes/sec with sub-millisecond query latency via a custom LSM-tree storage engine and columnar compression.</p>
+  <div class="stats">
+    <div><span class="stat-num">2M<span>+</span></span><div class="stat-label">Writes per second</div></div>
+    <div><span class="stat-num">&lt;1<span>ms</span></span><div class="stat-label">Query latency p99</div></div>
+    <div><span class="stat-num">94<span>%</span></span><div class="stat-label">Compression ratio</div></div>
+    <div><span class="stat-num">3</span><div class="stat-label">Fintech deployments</div></div>
+  </div>
+  <div class="btns">
+    <a href="#" class="btn btn-primary">↗ Live Demo</a>
+    <a href="#" class="btn btn-ghost">⌥ GitHub</a>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">Overview</div>
+  <h2>Architecture</h2>
+  <p style="color:var(--muted);font-size:13px;line-height:1.9;max-width:720px;">FlowDB is built around a custom LSM-tree (Log-Structured Merge-tree) storage engine that separates write-heavy ingestion from read-optimized query paths. The Raft consensus layer ensures fault-tolerance across distributed nodes, while columnar compression reduces on-disk footprint by up to 94% compared to row-oriented storage.</p>
+  <div class="grid-3">
+    <div class="card"><div class="card-title">LSM-Tree Engine</div><div class="card-desc">Custom write-optimized storage with tiered compaction and bloom filters for O(1) key lookups at scale.</div></div>
+    <div class="card"><div class="card-title">Raft Consensus</div><div class="card-desc">Leader election and log replication across nodes ensures zero data loss and strong consistency guarantees.</div></div>
+    <div class="card"><div class="card-title">Columnar Compression</div><div class="card-desc">Time-series data stored column-wise with delta encoding and LZ4 compression — 94% space reduction.</div></div>
+    <div class="card"><div class="card-title">gRPC Interface</div><div class="card-desc">High-performance Protobuf-based API supporting streaming reads, batch writes, and subscription queries.</div></div>
+    <div class="card"><div class="card-title">Query Planner</div><div class="card-desc">Cost-based optimizer with time-range pruning and pre-aggregated rollup caches for common intervals.</div></div>
+    <div class="card"><div class="card-title">Horizontal Sharding</div><div class="card-desc">Automatic range-based sharding by time partition with rebalancing support for elastic scaling.</div></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">Usage</div>
+  <h2>Quick Start</h2>
+  <div class="code-block">
+<span class="cmt">// Connect to FlowDB</span>
+<span class="kw">client</span>, err := flowdb.<span class="kw">Connect</span>(<span class="str">"localhost:7432"</span>, flowdb.Options{
+  &nbsp;&nbsp;Timeout: 5 * time.Second,
+  &nbsp;&nbsp;TLS:     <span class="kw">true</span>,
+})
+
+<span class="cmt">// Write tick data</span>
+err = client.<span class="kw">Write</span>(ctx, flowdb.Point{
+  &nbsp;&nbsp;Metric:    <span class="str">"btc.usd.price"</span>,
+  &nbsp;&nbsp;Timestamp: time.Now(),
+  &nbsp;&nbsp;Value:     67482.50,
+  &nbsp;&nbsp;Tags:      map[string]string{<span class="str">"exchange"</span>: <span class="str">"coinbase"</span>},
+})
+
+<span class="cmt">// Query last 5 minutes</span>
+rows, err := client.<span class="kw">Query</span>(ctx, <span class="str">`
+  SELECT mean(value), max(value)
+  FROM "btc.usd.price"
+  WHERE time > now() - 5m
+  GROUP BY time(10s)
+`</span>)
+  </div>
+  <div class="tech-list">
+    <span class="tech-tag">Go 1.22</span>
+    <span class="tech-tag">LSM-Tree</span>
+    <span class="tech-tag">Raft Consensus</span>
+    <span class="tech-tag">gRPC</span>
+    <span class="tech-tag">Protobuf</span>
+    <span class="tech-tag">LZ4 Compression</span>
+    <span class="tech-tag">Bloom Filters</span>
+  </div>
+</div>
+
+<footer>
+  <span>FlowDB · Open Source · MIT License</span>
+  <span>Alex Chen · 2026</span>
+</footer>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parallax — Collaborative Data Visualization</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --bg: #0a0a0a; --surface: #111; --border: rgba(255,255,255,0.08); --text: #f0ede8; --muted: rgba(240,237,232,0.45); --accent: #e8ff47; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Mono', monospace; font-size: 14px; line-height: 1.6; }
+  nav { display: flex; align-items: center; justify-content: space-between; padding: 24px 48px; border-bottom: 1px solid var(--border); background: rgba(10,10,10,0.95); position: sticky; top: 0; z-index: 100; }
+  .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 18px; color: var(--accent); text-decoration: none; }
+  .back { color: var(--muted); text-decoration: none; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; transition: color 0.2s; }
+  .back:hover { color: var(--accent); }
+  .hero { padding: 80px 48px; border-bottom: 1px solid var(--border); }
+  .tag { display: inline-flex; align-items: center; gap: 8px; background: rgba(232,255,71,0.08); border: 1px solid rgba(232,255,71,0.2); color: var(--accent); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; padding: 6px 14px; border-radius: 2px; margin-bottom: 24px; }
+  h1 { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(48px, 8vw, 96px); letter-spacing: -3px; line-height: 0.95; margin-bottom: 32px; }
+  h1 span { color: var(--accent); }
+  .subtitle { color: var(--muted); font-size: 14px; max-width: 600px; line-height: 1.9; margin-bottom: 40px; }
+  .stats { display: flex; gap: 48px; flex-wrap: wrap; }
+  .stat-num { font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800; color: var(--text); display: block; line-height: 1; }
+  .stat-num span { color: var(--accent); }
+  .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 4px; }
+  .section { padding: 64px 48px; border-bottom: 1px solid var(--border); }
+  .section-label { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; display: flex; align-items: center; gap: 12px; }
+  .section-label::before { content: ''; width: 24px; height: 1px; background: var(--accent); }
+  h2 { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(28px, 4vw, 48px); letter-spacing: -1.5px; margin-bottom: 40px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); margin-top: 32px; }
+  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); margin-top: 32px; }
+  .card { background: var(--bg); padding: 32px; transition: background 0.2s; }
+  .card:hover { background: var(--surface); }
+  .card-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+  .card-desc { font-size: 12px; color: var(--muted); line-height: 1.7; }
+  .tech-list { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 32px; }
+  .tech-tag { font-size: 11px; padding: 6px 14px; background: rgba(232,255,71,0.06); border: 1px solid rgba(232,255,71,0.15); color: var(--accent); border-radius: 2px; }
+  .timeline-item { display: grid; grid-template-columns: 120px 1fr; gap: 24px; padding: 24px 0; border-top: 1px solid var(--border); }
+  .timeline-year { font-size: 12px; color: var(--accent); letter-spacing: 0.05em; padding-top: 2px; }
+  .timeline-role { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .timeline-co { font-size: 12px; color: var(--muted); }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 28px; font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.05em; text-decoration: none; border-radius: 2px; transition: all 0.2s; border: none; cursor: pointer; }
+  .btn-primary { background: var(--accent); color: #000; }
+  .btn-primary:hover { background: #fff; transform: translateY(-2px); }
+  .btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .btn-ghost:hover { border-color: var(--text); transform: translateY(-2px); }
+  .btns { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 40px; }
+  .acquired-banner { background: rgba(232,255,71,0.06); border: 1px solid rgba(232,255,71,0.2); padding: 20px 28px; border-radius: 2px; margin-top: 32px; display: flex; align-items: center; gap: 16px; }
+  .acquired-banner strong { color: var(--accent); font-size: 13px; }
+  .acquired-banner span { color: var(--muted); font-size: 12px; }
+  footer { padding: 24px 48px; font-size: 11px; color: var(--muted); border-top: 1px solid var(--border); display: flex; justify-content: space-between; }
+  @media (max-width: 768px) { nav, .hero, .section { padding-left: 24px; padding-right: 24px; } .grid-3, .grid-2 { grid-template-columns: 1fr; } .stats { gap: 24px; } footer { flex-direction: column; gap: 8px; } }
+</style>
+</head>
+<body>
+<nav>
+  <a href="portfolio.html" class="logo">Parallax</a>
+  <a href="portfolio.html" class="back">← Back to Portfolio</a>
+</nav>
+
+<div class="hero">
+  <div class="tag">SaaS · Full-Stack · Acquired 2024</div>
+  <h1>Para<span>llax</span></h1>
+  <p class="subtitle">Real-time collaborative data visualization platform — think Figma meets Tableau. Teams build and edit dashboards simultaneously with conflict-free merging. Served 180,000+ users at peak. Acquired in 2024.</p>
+  <div class="stats">
+    <div><span class="stat-num">180K<span>+</span></span><div class="stat-label">Peak active users</div></div>
+    <div><span class="stat-num">CRDT</span><div class="stat-label">Conflict-free sync</div></div>
+    <div><span class="stat-num">2024</span><div class="stat-label">Acquisition year</div></div>
+    <div><span class="stat-num">&lt;50<span>ms</span></span><div class="stat-label">Sync latency</div></div>
+  </div>
+  <div class="acquired-banner">
+    <strong>🎉 Acquired</strong>
+    <span>Parallax was acquired in 2024. This case study covers the technical journey from 0 to 180K users.</span>
+  </div>
+  <div class="btns">
+    <a href="#" class="btn btn-primary">↗ Case Study</a>
+    <a href="#" class="btn btn-ghost">⌥ GitHub</a>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">Architecture</div>
+  <h2>How it works.</h2>
+  <p style="color:var(--muted);font-size:13px;line-height:1.9;max-width:720px;">Parallax uses Conflict-free Replicated Data Types (CRDTs) to allow multiple users to edit dashboards simultaneously without merge conflicts. Each operation is a commutative, associative transformation applied locally and synced via WebSockets. Redis pub/sub handles real-time fan-out while PostgreSQL stores the canonical state.</p>
+  <div class="grid-3">
+    <div class="card"><div class="card-title">CRDT Sync Engine</div><div class="card-desc">Every widget, layout change, and data binding is a CRDT operation — mergeable in any order without conflicts.</div></div>
+    <div class="card"><div class="card-title">WebSocket Layer</div><div class="card-desc">Persistent connections per user with heartbeats, reconnection logic, and optimistic local state updates.</div></div>
+    <div class="card"><div class="card-title">D3.js Renderer</div><div class="card-desc">Custom D3 chart components with declarative bindings — users connect live data sources to any visual type.</div></div>
+    <div class="card"><div class="card-title">Auto-Scaling Infra</div><div class="card-desc">Kubernetes HPA triggered on WebSocket connection count — scaled from 2 to 40 pods during peak.</div></div>
+    <div class="card"><div class="card-title">Permission Model</div><div class="card-desc">Row-level security in PostgreSQL with workspace, dashboard, and widget-level access controls.</div></div>
+    <div class="card"><div class="card-title">Data Connectors</div><div class="card-desc">Native connectors for PostgreSQL, BigQuery, Snowflake, REST APIs, and CSV uploads.</div></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">Growth</div>
+  <h2>From 0 to acquisition.</h2>
+  <div class="timeline-item"><div class="timeline-year">2021 Q2</div><div><div class="timeline-role">Founded & first commit</div><div class="timeline-co">Solo prototype — CRDT engine + basic canvas</div></div></div>
+  <div class="timeline-item"><div class="timeline-year">2021 Q4</div><div><div class="timeline-role">Public beta launch</div><div class="timeline-co">3,000 signups in first week via HN post</div></div></div>
+  <div class="timeline-item"><div class="timeline-year">2022 Q2</div><div><div class="timeline-role">Series A — $8M raised</div><div class="timeline-co">Team grew to 11 engineers</div></div></div>
+  <div class="timeline-item"><div class="timeline-year">2023 Q3</div><div><div class="timeline-role">180K peak users</div><div class="timeline-co">Enterprise tier launched — Fortune 500 clients</div></div></div>
+  <div class="timeline-item"><div class="timeline-year">2024 Q1</div><div><div class="timeline-role">Acquired</div><div class="timeline-co">Exit to a leading BI platform</div></div></div>
+  <div class="tech-list">
+    <span class="tech-tag">React</span><span class="tech-tag">WebSockets</span><span class="tech-tag">CRDTs</span>
+    <span class="tech-tag">D3.js</span><span class="tech-tag">PostgreSQL</span><span class="tech-tag">Redis</span>
+    <span class="tech-tag">Kubernetes</span><span class="tech-tag">TypeScript</span>
+  </div>
+</div>
+
+<footer>
+  <span>Parallax · Acquired 2024</span>
+  <span>Alex Chen · 2026</span>
+</footer>
+</body>
+</html>
